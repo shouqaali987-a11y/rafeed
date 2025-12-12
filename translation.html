@@ -1,0 +1,257 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>رفيد - إدارة الترجمة والتوطين</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+    <link rel="stylesheet" href="css/translation.css">
+    <style>
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: #333;
+            color: #fff;
+            padding: 15px 25px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 9999;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+        .toast-success { background: #28a745; }
+        .toast-error { background: #dc3545; }
+        .toast-warning { background: #ffc107; color: #333; }
+        .toast-info { background: #17a2b8; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon"></div>
+                    <div class="logo-text">رفـ<span>يـد</span></div>
+                </div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-item">
+                    <a href="dashboard.html" class="nav-link">
+                        <i class="fas fa-map-marked-alt"></i>
+                        <span>تتبع الحجاج</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="alerts.html" class="nav-link">
+                        <i class="fas fa-bell"></i>
+                        <span>التنبيهات</span>
+                        <span class="nav-badge">3</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="rfid.html" class="nav-link">
+                        <i class="fas fa-id-card"></i>
+                        <span>قراءة RFID</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="translation.html" class="nav-link active">
+                        <i class="fas fa-language"></i>
+                        <span>الترجمة</span>
+                    </a>
+                </div>
+                <div class="nav-item">
+                    <a href="settings.html" class="nav-link">
+                        <i class="fas fa-cog"></i>
+                        <span>الإعدادات</span>
+                    </a>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">م</div>
+                    <div class="user-details">
+                        <h4>مدير النظام</h4>
+                        <span>مشرف عام</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        <div class="sidebar-overlay"></div>
+        <main class="main-content">
+            <header class="top-header">
+                <div class="header-right">
+                    <button class="sidebar-toggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="search-box">
+                        <input type="text" placeholder="بحث...">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+                <div class="header-left">
+                    <button class="header-btn notification-btn">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </button>
+                    <button class="header-btn">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <button class="header-btn" onclick="AuthUtils.logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </header>
+            <div class="page-content">
+                <div class="page-header">
+                    <h1 class="page-title">🔠 إدارة الترجمة والتوطين</h1>
+                    <p class="page-subtitle">أداة الترجمة الفورية وإدارة ملفات التوطين للنظام</p>
+                </div>
+                <div class="translation-page">
+                    <div class="translation-main">
+                        <div class="translator-card">
+                            <div class="translator-header">
+                                <h3><i class="fas fa-language"></i> أداة الترجمة الفورية</h3>
+                            </div>
+                            <div class="translator-body">
+                                <div class="language-selector">
+                                    <div class="lang-select-wrapper">
+                                        <label>من</label>
+                                        <select id="sourceLang" class="form-control">
+                                        </select>
+                                    </div>
+                                    <button class="swap-btn" onclick="swapLanguages()" title="تبديل اللغات">
+                                        <i class="fas fa-exchange-alt"></i>
+                                    </button>
+                                    <div class="lang-select-wrapper">
+                                        <label>إلى</label>
+                                        <select id="targetLang" class="form-control">
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="translation-boxes">
+                                    <div class="translation-box input">
+                                        <label>النص الأصلي</label>
+                                        <textarea id="sourceText" placeholder="اكتب النص المراد ترجمته..."></textarea>
+                                        <div class="char-count">0 / 5000 حرف</div>
+                                    </div>
+                                    <div class="translation-box output">
+                                        <label>الترجمة</label>
+                                        <textarea id="targetText" readonly placeholder="ستظهر الترجمة هنا..."></textarea>
+                                    </div>
+                                </div>
+                                <div class="translate-actions">
+                                    <button class="btn btn-primary" onclick="translateNow()">
+                                        <i class="fas fa-language"></i>
+                                        ترجمة
+                                    </button>
+                                    <button class="btn btn-secondary" onclick="clearTranslation()">
+                                        <i class="fas fa-eraser"></i>
+                                        مسح
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="localization-card" style="margin-top: 30px;">
+                            <div class="localization-header">
+                                <h4><i class="fas fa-globe"></i> ملفات التوطين</h4>
+                                <button class="btn btn-primary btn-sm">
+                                    <i class="fas fa-plus"></i>
+                                    إضافة لغة
+                                </button>
+                            </div>
+                            <div class="localization-body">
+                                <div class="localization-files" id="localizationFiles">
+                                </div>
+                                <div class="upload-zone" id="uploadZone">
+                                    <div class="upload-icon">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                    </div>
+                                    <h4>رفع ملف توطين جديد</h4>
+                                    <p>اسحب الملف هنا أو انقر للاختيار</p>
+                                    <button class="btn btn-secondary">
+                                        <i class="fas fa-folder-open"></i>
+                                        اختيار ملف
+                                    </button>
+                                    <input type="file" id="fileInput" accept=".json" hidden>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="translation-editor" id="translationEditor" style="display: none;">
+                            <div class="editor-header">
+                                <h4><i class="fas fa-edit"></i> تحرير ملف التوطين</h4>
+                                <div>
+                                    <button class="btn btn-secondary btn-sm" onclick="document.getElementById('translationEditor').style.display='none'">
+                                        إلغاء
+                                    </button>
+                                    <button class="btn btn-primary btn-sm" onclick="saveTranslations()">
+                                        <i class="fas fa-save"></i>
+                                        حفظ
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="editor-body">
+                                <table class="translation-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 40%;">المفتاح</th>
+                                            <th>القيمة</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="translationKeys">
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="translation-sidebar">
+                        <div class="languages-card">
+                            <div class="languages-header">
+                                <h4><i class="fas fa-list"></i> اللغات المدعومة</h4>
+                            </div>
+                            <div class="languages-search">
+                                <input type="text" id="langSearch" placeholder="بحث عن لغة..." oninput="searchLanguages()">
+                            </div>
+                            <div class="languages-list" id="languagesList">
+                            </div>
+                        </div>
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fas fa-chart-bar"></i> إحصائيات</h3>
+                            </div>
+                            <div style="padding: 10px 0;">
+                                <div class="info-item" style="margin-bottom: 15px;">
+                                    <label>اللغات المدعومة</label>
+                                    <span><i class="fas fa-language"></i> 14 لغة</span>
+                                </div>
+                                <div class="info-item" style="margin-bottom: 15px;">
+                                    <label>إجمالي الترجمات</label>
+                                    <span><i class="fas fa-file-alt"></i> 1,250 نص</span>
+                                </div>
+                                <div class="info-item">
+                                    <label>آخر تحديث</label>
+                                    <span><i class="fas fa-clock"></i> منذ 3 ساعات</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="js/main.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/translation.js"></script>
+</body>
+</html>
